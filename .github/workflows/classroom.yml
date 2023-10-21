@@ -21,25 +21,22 @@ jobs:
       - name: Make
         run: |
           make
-      - name: Generate Mocks and Run Tests
+      - name: Run Tests
         run: |
           go install github.com/jstemmer/go-junit-report@latest
           go test -v ./... | go-junit-report -set-exit-code > report.xml          
 
       - name: Test Summary
-        uses: test-summary/action@v1
+        uses: test-summary/action@v2
         with:
           paths: |
             report.xml
         if: always()
-
-      - name: Wait for Render Deployment
-        uses: bounceapp/render-action@0.6.0
+      - name: Deploy to render
+        uses: johnbeynon/render-deploy-action@v0.0.8
         with:
-          service-id: srv-ckpv6hu2eoec73fdmepg
-          retries: 2
-          wait: 16000
-          sleep: 30000
+          service-id: ${{ secrets.MY_RENDER_SERVICE_ID }}
+          api-key: ${{ secrets.MY_RENDER_API_KEY }}
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
